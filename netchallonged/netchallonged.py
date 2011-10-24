@@ -5,15 +5,18 @@ import random
 import time
 import threading
 import math
+
 #Custom timer :P
 import timer
+import scores
+from prompt import *
 
 try:
 	import SocketServer
 except:
 	import socketserver as SocketServer
 
-from prompt import *
+
 #CONFIGZ
 #http://docs.python.org/library/socketserver.html
 
@@ -25,6 +28,9 @@ HOST, PORT = '', 1337
 #	Code::Phun Network challonge. 
 #
 #
+
+scores = scores.Scores()
+
 
 def getChallonge():
 	""" Simple procedure to produce a random mathematical challenge"""
@@ -49,7 +55,7 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 			#Limit of 1 sec
 			t = timer.Timer(1)
 			# Getting the language the nerd is using 
-			language=self.rfile.readline().strip()
+			language=self.ReadSomething()
 		
 			# Making a challenge for him /her
 			challenge = getChallonge()
@@ -58,17 +64,24 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 			
 			self.SaySomething(challenge + "\n")
 			# 32bit integer max 
-			nerdAttempt = int ( self.rfile.readline( int( math.pow(2,30) ) ).strip() )
+			nerdAttempt = int ( self.ReadSomething() )
 			
 			#Did he make the challenge?
 			passed = answer == nerdAttempt
+			
+			
 			
 			#Telling him/her:
 			reply = "Correct!\n" if passed and t.timeLeft() else "Wrong!\n"
 			self.SaySomething(reply)
 		
-			# http://effbot.org/zone/thread-synchronization.htm
+			
 		
+			# http://effbot.org/zone/thread-synchronization.htm
+			#Grading him
+			
+			scores.addResult("%s [%s]" %(language, self.client_address[0]), passed)
+			
 			print ( "The nerd gave an attempt to answer the challonge. \n \
 			\t Challenge: \t %s \n \
 			. He thought it to be:  %d \n \
@@ -83,7 +96,12 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 	
 	def SaySomething(self, something):
 		""" Python 3 compability issue handling :) Str is no longar  string or something"""
-		self.wfile.write(bytes(something, 'UTF-8'))
+		self.wfile.write(something.encode('UTF-8'))
+	
+	def ReadSomething(self):
+		""" The comp...  well, it decodes utf-8."""
+		return self.rfile.readline(int( math.pow(2,30) )).decode('UTF-8').strip()
+
 
 class ThreadedNetChallonged(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 	pass
@@ -107,8 +125,11 @@ if __name__ == "__main__":
 		serverThread.setDaemon(True)
 		serverThread.start()
 		while 1:
-			if "quit" in prompt("Code::Phun->NetChallongeD>> "):
+			cmd = prompt("Code::Phun->NetChallongeD>> ")
+			if "quit" in cmd:
 				shutUp()
+			elif "scores" in cmd:
+				print ( scores.getScores() )
 	except KeyboardInterrupt:
 		print ( "Shuting down, erh up... ")
 	finally:
