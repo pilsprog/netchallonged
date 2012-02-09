@@ -38,11 +38,11 @@ def getChallonge():
 	B=13*3*7
 	operators = ["+", "-", "*", "/"]
 	#Selects random numbers and random operator
-	ai = int( round( random.random() * A ))
-	bi = int( round( random.random() * B ) )
+	a = int( round( random.random() * A ))
+	b = int( round( random.random() * B ) )
 	oi = int( round( random.random() * ( len( operators ) - 1 ) ) )
 	#	Will yield something like: 13+37
-	return "%d%s%d" % (ai, operators[oi], bi)
+	return "%d%s%d" % (a, operators[oi], b)
 
 	
 
@@ -72,7 +72,7 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 			
 			
 			#Telling him/her:
-			reply = "Correct!\n" if passed and t.timeLeft() else "Wrong!\n"
+			reply = "Correct!\n" if passed and t.timeLeft() else "Wrong or not solved in time :)!\n"
 			self.SaySomething(reply)
 		
 			
@@ -95,11 +95,13 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 			print ( "%s Nerd Lost:/ " % self.client_address[0] )
 	
 	def SaySomething(self, something):
-		""" Python 3 compability issue handling :) Str is no longar  string or something"""
+		""" Method for writing to the socket. 
+		Python 3 compability issue handling :) Str is no longar  string or something"""
 		self.wfile.write(something.encode('UTF-8'))
 	
 	def ReadSomething(self):
-		""" The comp...  well, it decodes utf-8."""
+		""" Method to read from the socket.
+		The comp...  well, it decodes utf-8."""
 		return self.rfile.readline(int( math.pow(2,30) )).decode('UTF-8').strip()
 
 
