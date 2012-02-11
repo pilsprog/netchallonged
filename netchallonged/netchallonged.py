@@ -18,6 +18,10 @@ try:
 except:
 	import socketserver as SocketServer
 
+#Appending the challenge dir to the module loading path :)
+challengeDir = "challenges"
+sys.path.append(challengeDir) 
+
 
 #CONFIGZ
 #http://docs.python.org/library/socketserver.html
@@ -116,21 +120,29 @@ class ThreadedNetChallonged(SocketServer.ThreadingMixIn, SocketServer.TCPServer)
 	users = {}
 	def addChallenge(self, challenge, lvl):
 		""" For globally adding a new challenge to the server. lvl overwriting is done by adding a new challenge with an old lvl"""
-		self.challenges[lvl] = challenge
+		with self.lock:
+			self.challenges[lvl] = challenge
 		
 	def getChallenge(self, lvl):
 		""" Returns a Challenge object linked with a current lvl"""
-		return self.challenges[lvl]
+		with self.lock:
+			return self.challenges[lvl]
 
 	def addUser(self, nickname):
 		""" Checks if the user is new, then creates it. If we have the user from before, this method does nothing."""
-		if not nickname in self.users:
-			self.users[nickname] == User(nickname)
+		with self.userlock:
+			#a.setdefault(k[, x]) does this... wher a is the self.users dictionary.
+			if not nickname in self.users:
+				self.users[nickname] == User(nickname)
 	
 	def getUser(self, nickname):
 		"""Returns a User object wit nick: nickname"""
-		return self.users[nickname]
-
+		with self.userlock:
+			return self.users[nickname]
+	
+	#To make the operations on add / get users / challenges atomic.
+	lock = threading.RLock()
+	userlock = threading.RLock()
 	
 	
 # Below are the control and running of the server.
@@ -154,8 +166,39 @@ if __name__ == "__main__":
 			cmd = prompt("Code::Phun->NetChallongeD>> ")
 			if "quit" in cmd:
 				shutUp()
+				
+				
+			if "help" in cmd:
+				args = cmd.split(" ")
+				
+				#Lists all cmds
+				if len(args) == 1:
+					for k in ["load", "scores", "quit", "help"]:
+						print (k)
+					print ("Usage help [<command>]  \n if no command given, it lists all commands")
+					continue
+				
+				if "load" in args[1]:
+					print("Usage: load <challenge-name> <lvl>")
+				
+				
 			elif "load" in cmd:
-				pass #todo
+				""" Loads a new challenge module """
+				if 1:
+					(name, lvl) = cmd.split(" ")[1:3]
+					print ("Loading %s at lvl %s" %(name, lvl))
+					
+					mod = load(name)
+					exec ("task = mod.%s()" %(name, )) #dirty hack?
+					
+					print (task.desc())
+					
+					print ("loaded")
+					
+				#except:
+				#	print("Usage: load <challenge-name> <lvl>")
+					
+					
 			elif "scores" in cmd:
 				print ( scores.getScores() )
 	except KeyboardInterrupt:

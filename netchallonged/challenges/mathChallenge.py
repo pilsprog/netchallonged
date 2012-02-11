@@ -8,7 +8,7 @@ sys.path.append("../");
 
 from challenge import *
 
-class MathChallenge(Challenge):
+class mathChallenge(Challenge):
 	"""The lvl 1 challenge """
 	def name(self):
 		return "Network Math Challenge"
@@ -48,7 +48,7 @@ class MathChallenge(Challenge):
 if __name__ == "__main__":
 	""" Testing"""
 	print ("Dont run me. use me")
-	o = MathChallenge()
+	o = mathChallenge()
 	
 	(n,d,e,c,p,a) = (o.name(), o.desc(), o.example(), o.challenge(), o.passed(o.validAnswer()), o.validAnswer())
 	
