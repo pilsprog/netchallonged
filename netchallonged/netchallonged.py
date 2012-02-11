@@ -9,6 +9,7 @@ import math
 #Custom timer :P
 import timer
 import scores
+import challenge
 from user import * #Holding scores and lvl and nick
 
 from prompt import *
@@ -125,6 +126,8 @@ class ThreadedNetChallonged(SocketServer.ThreadingMixIn, SocketServer.TCPServer)
 		
 	def getChallenge(self, lvl):
 		""" Returns a Challenge object linked with a current lvl"""
+		#todo implement a mechanism for when there are no challenges left. 
+		#todo: wrap in try and handle error
 		with self.lock:
 			return self.challenges[lvl]
 
@@ -189,9 +192,15 @@ if __name__ == "__main__":
 					print ("Loading %s at lvl %s" %(name, lvl))
 					
 					mod = load(name)
-					exec ("task = mod.%s()" %(name, )) #dirty hack?
+					exec ("challengeObj = mod.%s()" %(name, )) #dirty hack?
 					
-					print (task.desc())
+					#Testing the loaded module
+					if not challenge.Challenge.test(challengeObj):
+						print ("Not loaded")
+						continue
+					
+					#loading it into the server
+					server.addChallenge(challengeObj, lvl)
 					
 					print ("loaded")
 					

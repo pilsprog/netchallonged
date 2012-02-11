@@ -49,6 +49,11 @@ if __name__ == "__main__":
 	""" Testing"""
 	print ("Dont run me. use me")
 	o = mathChallenge()
+	#New testing method
+	Challenge.test(o)
+	
+	quit()
+	
 	
 	(n,d,e,c,p,a) = (o.name(), o.desc(), o.example(), o.challenge(), o.passed(o.validAnswer()), o.validAnswer())
 	
