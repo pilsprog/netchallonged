@@ -9,6 +9,8 @@ import math
 #Custom timer :P
 import timer
 import scores
+from user import * #Holding scores and lvl and nick
+
 from prompt import *
 
 try:
@@ -31,7 +33,10 @@ HOST, PORT = '', 1337
 
 scores = scores.Scores()
 
-
+def load(challenge):
+	""" Dynamically loading modules. Returns the module loaded"""
+	return __import__(challenge, fromlist=[])
+	
 def getChallonge():
 	""" Simple procedure to produce a random mathematical challenge"""
 	A=1337
@@ -54,10 +59,11 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 		try:
 			#Limit of 1 sec
 			t = timer.Timer(1)
-			# Getting the language the nerd is using 
-			language=self.ReadSomething()
+			# Getting the nickname the nerd is using 
+			nickname=self.ReadSomething()
 		
 			# Making a challenge for him /her
+			
 			challenge = getChallonge()
 			# We need to know the answer to see if the nerd did it..
 			answer = int( eval(challenge) )
@@ -80,7 +86,7 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 			# http://effbot.org/zone/thread-synchronization.htm
 			#Grading him
 			
-			scores.addResult("%s [%s]" %(language, self.client_address[0]), passed)
+			scores.addResult("%s [%s]" %(nickname, self.client_address[0]), passed)
 			
 			print ( "The nerd gave an attempt to answer the challonge. \n \
 			\t Challenge: \t %s \n \
@@ -92,7 +98,7 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 		except Exception as e:
 			print ( "Man quit! %s" %(e,))
 		finally:
-			print ( "%s Nerd Lost:/ " % self.client_address[0] )
+			print ( "%s Nerd Gones " % self.client_address[0] )
 	
 	def SaySomething(self, something):
 		""" Method for writing to the socket. 
@@ -106,8 +112,26 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 
 
 class ThreadedNetChallonged(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
-	pass
+	challenges = {}
+	users = {}
+	def addChallenge(self, challenge, lvl):
+		""" For globally adding a new challenge to the server. lvl overwriting is done by adding a new challenge with an old lvl"""
+		self.challenges[lvl] = challenge
+		
+	def getChallenge(self, lvl):
+		""" Returns a Challenge object linked with a current lvl"""
+		return self.challenges[lvl]
 
+	def addUser(self, nickname):
+		""" Checks if the user is new, then creates it. If we have the user from before, this method does nothing."""
+		if not nickname in self.users:
+			self.users[nickname] == User(nickname)
+	
+	def getUser(self, nickname):
+		"""Returns a User object wit nick: nickname"""
+		return self.users[nickname]
+
+	
 	
 # Below are the control and running of the server.
 # It is an interactive prompt that controls it.
@@ -130,6 +154,8 @@ if __name__ == "__main__":
 			cmd = prompt("Code::Phun->NetChallongeD>> ")
 			if "quit" in cmd:
 				shutUp()
+			elif "load" in cmd:
+				pass #todo
 			elif "scores" in cmd:
 				print ( scores.getScores() )
 	except KeyboardInterrupt:
