@@ -16,6 +16,12 @@ class Timer():
 		self.stop = time.time()
 		self.timePassed = self.stop-self.start
 	
+	#deprecated	
+	def setLimit(self, time):
+		"""	Setting the time limit 	"""
+		self.limit = int(time)
+	
+	
 	def calcTimePassed(self):
 		self.timePassed = ( time.time() - self.start )
 		
@@ -28,5 +34,5 @@ class Timer():
 if __name__ == "__main__":
 	
 	timer = Timer(2000)
-	time.sleep(3)
+	time.sleep(3) #idling in 3 seconds
 	print (timer.timeLeft())

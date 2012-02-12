@@ -1,10 +1,12 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import sys
 import socket
 import random
 import time
 import threading
 import math
+import copy 
 
 #Custom timer :P
 import timer
@@ -62,24 +64,34 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 		cur_thread = threading.currentThread()
 		print ("%s Joined. Will he or she manage? The clock is ticking." %(self.client_address[0]))
 		try:
+		
 			#Limit of 1 sec
-			t = timer.Timer(1)
+			
 			# Getting the nickname the nerd is using 
 			nickname=self.ReadSomething()
-		
+
+			lvl = server.addUser(str(nickname))
 			# Making a challenge for him /her
+ 			challengeHandler = server.getChallenge(str(lvl))
+			print (challengeHandler.desc())
 			
-			challenge = getChallonge()
-			# We need to know the answer to see if the nerd did it..
-			answer = int( eval(challenge) )
+			
+			challenge = challengeHandler.challenge()
+			
 			
 			self.SaySomething(challenge + "\n")
-			# 32bit integer max 
-			nerdAttempt = int ( self.ReadSomething() )
+
+			
+			#Ticking down
+			t = timer.Timer(challengeHandler.timeLimit())
+			
+			nerdAttempt = str(self.ReadSomething())
 			
 			#Did he make the challenge?
-			passed = answer == nerdAttempt
-			
+			passed = challengeHandler.passed(nerdAttempt)
+			if passed:
+				#todo make this a method instead
+				server.getUser(str(nickname)).lvl+=1
 			
 			
 			#Telling him/her:
@@ -87,7 +99,8 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 			self.SaySomething(reply)
 		
 			
-		
+			answer = str(challengeHandler.validAnswer())
+			
 			# http://effbot.org/zone/thread-synchronization.htm
 			#Grading him
 			
@@ -95,11 +108,11 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 			
 			print ( "The nerd gave an attempt to answer the challonge. \n \
 			\t Challenge: \t %s \n \
-			. He thought it to be:  %d \n \
-			It should be: %d\n \
+			. He thought it to be:  %s \n \
+			It should be: %s\n \
 			, and he is  %s !!!!" % 
 				(challenge, nerdAttempt, answer, reply) )
-				
+	
 		except Exception as e:
 			print ( "Man quit! %s" %(e,))
 		finally:
@@ -114,6 +127,8 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 		""" Method to read from the socket.
 		The comp...  well, it decodes utf-8."""
 		return self.rfile.readline(int( math.pow(2,30) )).decode('UTF-8').strip()
+		
+
 
 
 class ThreadedNetChallonged(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
@@ -132,16 +147,30 @@ class ThreadedNetChallonged(SocketServer.ThreadingMixIn, SocketServer.TCPServer)
 			return self.challenges[lvl]
 
 	def addUser(self, nickname):
-		""" Checks if the user is new, then creates it. If we have the user from before, this method does nothing."""
+		""" Checks if the user is new, then creates it. If we have the user from before, this method does nothing.
+			Returns lvl of the user.
+		"""
 		with self.userlock:
 			#a.setdefault(k[, x]) does this... wher a is the self.users dictionary.
 			if not nickname in self.users:
-				self.users[nickname] == User(nickname)
-	
+				self.users[nickname] = User(nickname)
+			return self.users[nickname].lvl
+		
 	def getUser(self, nickname):
 		"""Returns a User object wit nick: nickname"""
 		with self.userlock:
 			return self.users[nickname]
+	
+	def listUsers(self):
+		"""	Returns a copy of the current userlists  """
+		with self.userlock:
+			return copy.copy(self.users)
+	
+	def listChallenges(self):
+		"""	Returns a copy of the current userlists  """
+		with self.lock:
+			return copy.copy(self.challenges)
+	
 	
 	#To make the operations on add / get users / challenges atomic.
 	lock = threading.RLock()
@@ -176,7 +205,7 @@ if __name__ == "__main__":
 				
 				#Lists all cmds
 				if len(args) == 1:
-					for k in ["load", "scores", "quit", "help"]:
+					for k in ["load", "scores", "quit", "help", "users"]:
 						print (k)
 					print ("Usage help [<command>]  \n if no command given, it lists all commands")
 					continue
@@ -187,7 +216,7 @@ if __name__ == "__main__":
 				
 			elif "load" in cmd:
 				""" Loads a new challenge module """
-				if 1:
+				try:
 					(name, lvl) = cmd.split(" ")[1:3]
 					print ("Loading %s at lvl %s" %(name, lvl))
 					
@@ -204,12 +233,24 @@ if __name__ == "__main__":
 					
 					print ("loaded")
 					
-				#except:
-				#	print("Usage: load <challenge-name> <lvl>")
+				except Exception as e:
+					print ("Exception %s" %(e))
+					print("Usage: load <challenge-name> <lvl>")
 					
 					
 			elif "scores" in cmd:
 				print ( scores.getScores() )
+			
+			elif "users" in cmd:
+				print("%s")
+				for k,v in server.listUsers().items():
+					print ("User: %s has gone to lvl: %s" % (k, v.lvl))
+					
+			elif "challenges" in cmd:
+				print (" Listing challenges ")
+				for k,v in server.listChallenges().items():
+					print ("Lvl: %s \t Challenge:  %s \n\tExample: %s \n\n" % (k, v.name(), v.example()))
+					
 	except KeyboardInterrupt:
 		print ( "Shuting down, erh up... ")
 	finally:

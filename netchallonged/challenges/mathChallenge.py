@@ -1,4 +1,11 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
+#
+#	Network Math challenge - the very first challenge to ever enter the system.
+#	In fact, originally the system was built in order to host THIS challenge, and that one only.
+#	@author:	technocake
+#	10.02.2012
+#
 import sys
 import random
 import time
@@ -40,11 +47,14 @@ class mathChallenge(Challenge):
 		return self.ChallengeGiven
 		
 	def passed(self, answer):
-		return answer == int( eval(self.ChallengeGiven) ) 
+		return int(answer) == int( eval(self.ChallengeGiven) ) 
 		
 	def validAnswer(self):
 		return int ( eval(self.ChallengeGiven))
 		
+	def timeLimit(self):
+		return 1000
+
 if __name__ == "__main__":
 	""" Testing"""
 	print ("Dont run me. use me")
@@ -54,6 +64,7 @@ if __name__ == "__main__":
 	
 	quit()
 	
+	##below lines are not used anymore.
 	
 	(n,d,e,c,p,a) = (o.name(), o.desc(), o.example(), o.challenge(), o.passed(o.validAnswer()), o.validAnswer())
 	

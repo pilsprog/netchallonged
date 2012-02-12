@@ -24,7 +24,10 @@ class Challenge:
 		"""Used in example, and for testing purposes"""
 		pass
 	
-
+	def timeLimit(self):
+		""" Gives the time limit for the challenge. 0 => infinite 	"""
+		pass
+	
 	
 	"""server for the challenge"""
 	challengeServer = "pompel.komsys.org:1337"
@@ -33,8 +36,9 @@ class Challenge:
 	def test(challenge):
 		""" Testing method for challenge objects :) It will test all methods, including challenge, passed and validanswer"""
 		o = challenge #shorter name :)
+		print "Testing started"
 		try:
-			(n,d,e,c,p,a) = (o.name(), o.desc(), o.example(), o.challenge(), o.passed(o.validAnswer()), o.validAnswer())
+			(n,d,e,c,p,a,t) = (o.name(), o.desc(), o.example(), o.challenge(), o.passed(o.validAnswer()), o.validAnswer(), o.timeLimit())
 			#for t in (n,d,e,c):	if not isinstance(t, 'str'): raise Exception("%s is not returning a string")
 
 			print ("""
@@ -42,9 +46,10 @@ class Challenge:
 				Desc: %s
 				example: %s
 				challenge: %s
+				Time limit: %s
 				passed?: %s (answer: %s)
 
-			""" % (n,d,e,c,p,a))
+			""" % (n,d,e,c,t,p,a))
 			print ("Passed :)")
 			return True
 		except Exception as en:
