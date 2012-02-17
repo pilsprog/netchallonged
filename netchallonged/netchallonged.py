@@ -167,7 +167,7 @@ class ThreadedNetChallonged(SocketServer.ThreadingMixIn, SocketServer.TCPServer)
 				#a.setdefault(k[, x]) does this... wher a is the self.users dictionary.
 				if not nickname in self.users:
 					self.users[nickname] = User(nickname)
-					return self.users[nickname].lvl
+				return self.users[nickname].lvl
 		except Exception as e: print (e, "failed")
 		
 	def getUser(self, nickname):
