@@ -60,6 +60,14 @@ def load(chl):
 
 
 class NerdHandler(SocketServer.StreamRequestHandler):
+	"""
+		The class invoked when dealing with a nerd.
+		
+		Each client connecting will get a separate thread running handling them. (this class)
+		It is here the communication happens between the server and client. It will ask the server main thread for
+		the current challenge active for the user. (@see ThreadedNetChallonged.getChallenge() )Then serve it. 
+	
+	"""
 	def handle(self):
 		cur_thread = threading.currentThread()
 		print ("%s Joined. Will he or she manage? The clock is ticking." %(self.client_address[0]))
@@ -69,7 +77,7 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 			
 			# Getting the nickname the nerd is using 
 			nickname=self.ReadSomething()
-
+			print ("******************************** Nerd: %s " % (nickname,))
 			lvl = server.addUser(str(nickname))
 			# Making a challenge for him /her
  			challengeHandler = server.getChallenge(str(lvl))
@@ -121,7 +129,7 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 	def SaySomething(self, something):
 		""" Method for writing to the socket. 
 		Python 3 compability issue handling :) Str is no longar  string or something"""
-		self.wfile.write((something).encode('UTF-8')+"\n")
+		self.wfile.write((something).encode('UTF-8')+'\n')
 	
 	def ReadSomething(self):
 		""" Method to read from the socket.
