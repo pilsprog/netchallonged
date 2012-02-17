@@ -100,7 +100,8 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 			passed = challengeHandler.passed(nerdAttempt)
 			if passed:
 				#todo make this a method instead
-				server.getUser(str(nickname)).lvl+=1
+				server.levelUpUser(str(nickname))
+
 			
 			
 			#Telling him/her:
@@ -170,6 +171,21 @@ class ThreadedNetChallonged(SocketServer.ThreadingMixIn, SocketServer.TCPServer)
 				return self.users[nickname].lvl
 		except Exception as e: print (e, "failed")
 		
+		
+		
+	def levelUpUser(self, nickname):
+		"""	 Leveling up  a user. If the last level is reached, it will still update level, but there will be no challenges to let it further exceed.
+			 getChallonge should take account for handling lvls which does not yet change
+		 """
+		try:
+			with self.userlock:
+				#a.setdefault(k[, x]) does this... wher a is the self.users dictionary.
+				if not nickname in self.users:
+					self.users[nickname] = User(nickname)
+				self.users[nickname].lvl+=1
+		except Exception as e: print (e, "failed")
+	
+	
 	def getUser(self, nickname):
 		"""Returns a User object wit nick: nickname"""
 		try:
@@ -203,12 +219,14 @@ class ThreadedNetChallonged(SocketServer.ThreadingMixIn, SocketServer.TCPServer)
 				with userLock:
 					with lock:
 						#Saving user state
+						os.del
 						cPickle.dump(self.users, self.userFile)
 						#Saving Challenge state
 						cPickle.dump(self.challenges, self.challengeFile)
 						#Saving score state
 						#todo: implement. Move scores under the threaded server object.
 						#cPickle.dump(self.scores, scoreFile)
+						
 		except Exception as e:
 			print ("Failed to save states.. %s " %(e,))
 			
