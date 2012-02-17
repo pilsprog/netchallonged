@@ -1,4 +1,9 @@
 #!/usr/bin/python
+import sys
+
+sys.path.append("challenges")
+
+
 class Challenge:
 	"""The generic challenge class. All classes should heritage from this one"""
 	def name(self):
@@ -31,7 +36,7 @@ class Challenge:
 	
 	"""server for the challenge"""
 	challengeServer = "pompel.komsys.org:1337"
-	
+	challengeDir = "challenges"
 	
 	def test(challenge):
 		""" Testing method for challenge objects :) It will test all methods, including challenge, passed and validanswer"""

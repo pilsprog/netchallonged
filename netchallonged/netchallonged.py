@@ -7,6 +7,7 @@ import time
 import threading
 import math
 import copy 
+import os
 
 #Custom timer :P
 import timer
@@ -40,9 +41,17 @@ HOST, PORT = '', 1337
 
 scores = scores.Scores()
 
-def load(challenge):
+def load(chl):
 	""" Dynamically loading modules. Returns the module loaded"""
-	return __import__(challenge, fromlist=[])
+	byteCodeFile = challenge.Challenge.challengeDir + "/" + chl + ".pyc"
+	if (os.path.exists(byteCodeFile)):
+		print ( "python bytecode exists. Deleting it " )
+		try:
+			os.remove(byteCodeFile)
+		except:
+			print ("Could not delete file. please delete manually for a refreshed challenge")
+			print ("file: %s" % (byteCodeFile,))
+	return __import__(chl, fromlist=[])
 	
 def getChallonge():
 	""" Simple procedure to produce a random mathematical challenge"""
