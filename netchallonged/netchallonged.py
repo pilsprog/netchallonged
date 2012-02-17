@@ -153,7 +153,6 @@ class ThreadedNetChallonged(SocketServer.ThreadingMixIn, SocketServer.TCPServer)
 	def getChallenge(self, lvl):
 		""" Returns a Challenge object linked with a current lvl"""
 		#todo implement a mechanism for when there are no challenges left. 
-		#todo: wrap in try and handle error
 		try: 
 			with self.lock:
 				return self.challenges[lvl]
@@ -215,34 +214,68 @@ class ThreadedNetChallonged(SocketServer.ThreadingMixIn, SocketServer.TCPServer)
 			Scores [not implemented]
 		"""
 		try:
-			with stateLock:
-				with userLock:
-					with lock:
+			with self.stateLock:
+				with self.userLock:
+					with self.lock:
 						#Saving user state
-						os.del
-						cPickle.dump(self.users, self.userFile)
+						userFile = open("user.state", "w")
+						Pickle.dump(self.users, userFile)
 						#Saving Challenge state
-						cPickle.dump(self.challenges, self.challengeFile)
+						challengeFile = open("challenge.state", "w")
+						Pickle.dump(self.challenges, challengeFile)
 						#Saving score state
+						scoreFile = open("score.state", "w")
 						#todo: implement. Move scores under the threaded server object.
-						#cPickle.dump(self.scores, scoreFile)
+						#pickle.dump(self.scores, scoreFile)
 						
 		except Exception as e:
 			print ("Failed to save states.. %s " %(e,))
-			
+		finally:
+			userFile.close()
+			scoreFile.close()
+			challengeFile.close()
+
+				
+	
+	
+	def saveServerState(self):
+		"""	Function to load a earlier state of the server. 
+			Users and their levels
+			Challenges and their levels
+			Scores [not implemented]
+		"""
+		try:
+			with self.stateLock:
+				with self.userlock:
+					with self.lock:
+						#loading user state
+						userFile = open("user.state", "r")
+						self.users = pickle.load(userFile)
+						#loading challenge state
+						challengeFile = open("challenge.state", "r")
+						self.challenges = pickle.load(challengeFile)
+						#loading score state
+						#todo: implement
+						scoreFile = open("score.state", "r")
+						
+						
+		except Exception as e:
+			print ("Failed to save states.. %s " %(e,))	
+		finally:
+			userFile.close()
+			scoreFile.close()
+			challengeFile.close()	
 			
 	#State objects :)
 	challenges = {}
 	users = {}
 	
 	#To make the operations on add / get users / challenges atomic.
-	lock = threading.RLock()
+	lock = threading.RLock() #challengelock
 	userlock = threading.RLock()
 	stateLock = threading.RLock()
 	
-	userFile = open("user.state", "a+")
-	challengeFile = open("challenge.state", "a+")
-	scoreFile = open("score.state", "a+")
+	
 	
 # Below are the control and running of the server.
 # It is an interactive prompt that controls it.
@@ -282,6 +315,25 @@ if __name__ == "__main__":
 				
 				
 			elif "load" in cmd:
+				
+				#
+				#		LOAD SERVER STATE
+				#	
+				
+				if "state" in cmd:
+					""" Overwriting the load challenge command to act for load state from state files"""
+					print ("Loading server states")
+					try:
+						server.loadServerState()
+					except Exception as e:
+						print (" Failed to load states: %s " %(e,))
+
+					continue #skipping over the next steps
+				
+				#
+				#		LOAD Challenge
+				#
+				
 				""" Loads a new challenge module """
 				try:
 					(name, lvl) = cmd.split(" ")[1:3]
@@ -307,6 +359,23 @@ if __name__ == "__main__":
 					
 			elif "scores" in cmd:
 				print ( scores.getScores() )
+			
+			# 
+			#		Save Server States
+			#	
+				
+			elif "save" in cmd:
+				if "state" in cmd:
+					print ("Saving states")
+					try:
+						server.saveServerState()
+					except Exception as e:
+						print( "Failed to save server state %s " % (e,))
+					#Skipping the next sub comands		
+					continue
+
+					
+				
 			
 			elif "users" in cmd:
 				print("%s")
