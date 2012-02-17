@@ -121,7 +121,7 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 	def SaySomething(self, something):
 		""" Method for writing to the socket. 
 		Python 3 compability issue handling :) Str is no longar  string or something"""
-		self.wfile.write(something.encode('UTF-8'))
+		self.wfile.write((something+"\n").encode('UTF-8'))
 	
 	def ReadSomething(self):
 		""" Method to read from the socket.
