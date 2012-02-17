@@ -9,7 +9,7 @@ import math
 import copy 
 import os
 import pdb
-from cPickle import *
+import cPickle
 
 #Custom timer :P
 import timer
@@ -213,20 +213,21 @@ class ThreadedNetChallonged(SocketServer.ThreadingMixIn, SocketServer.TCPServer)
 			Challenges and their levels
 			Scores [not implemented]
 		"""
+		if DEBUG: pdb.set_trace()
 		try:
 			with self.stateLock:
-				with self.userLock:
+				with self.userlock:
 					with self.lock:
 						#Saving user state
 						userFile = open("user.state", "w")
-						Pickle.dump(self.users, userFile)
+						cPickle.dump(self.users, userFile)
 						#Saving Challenge state
 						challengeFile = open("challenge.state", "w")
-						Pickle.dump(self.challenges, challengeFile)
+						cPickle.dump(self.challenges, challengeFile)
 						#Saving score state
 						scoreFile = open("score.state", "w")
 						#todo: implement. Move scores under the threaded server object.
-						#pickle.dump(self.scores, scoreFile)
+						#cPickle.dump(self.scores, scoreFile)
 						
 		except Exception as e:
 			print ("Failed to save states.. %s " %(e,))
@@ -238,22 +239,23 @@ class ThreadedNetChallonged(SocketServer.ThreadingMixIn, SocketServer.TCPServer)
 				
 	
 	
-	def saveServerState(self):
+	def loadServerState(self):
 		"""	Function to load a earlier state of the server. 
 			Users and their levels
 			Challenges and their levels
 			Scores [not implemented]
 		"""
+		if DEBUG: pdb.set_trace()
 		try:
 			with self.stateLock:
 				with self.userlock:
 					with self.lock:
 						#loading user state
 						userFile = open("user.state", "r")
-						self.users = pickle.load(userFile)
+						self.users = cPickle.load(userFile)
 						#loading challenge state
 						challengeFile = open("challenge.state", "r")
-						self.challenges = pickle.load(challengeFile)
+						self.challenges = cPickle.load(challengeFile)
 						#loading score state
 						#todo: implement
 						scoreFile = open("score.state", "r")
