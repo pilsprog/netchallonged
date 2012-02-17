@@ -9,6 +9,7 @@ import math
 import copy 
 import os
 import pdb
+from cPickle import *
 
 #Custom timer :P
 import timer
@@ -140,8 +141,7 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 
 
 class ThreadedNetChallonged(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
-	challenges = {}
-	users = {}
+	
 	def addChallenge(self, challenge, lvl):
 		""" For globally adding a new challenge to the server. lvl overwriting is done by adding a new challenge with an old lvl"""
 		try:
@@ -189,12 +189,42 @@ class ThreadedNetChallonged(SocketServer.ThreadingMixIn, SocketServer.TCPServer)
 		try:
 			with self.lock:
 				return copy.copy(self.challenges)
-		except Exception as e: print (e, "failed")
+		except Exception as e:
+			print ("List challenges erroer %s " %(e,))
+				
+	def saveServerState(self):
+		"""	Function to save the state of the server. 
+			Users and their levels
+			Challenges and their levels
+			Scores [not implemented]
+		"""
+		try:
+			with stateLock:
+				with userLock:
+					with lock:
+						#Saving user state
+						cPickle.dump(self.users, self.userFile)
+						#Saving Challenge state
+						cPickle.dump(self.challenges, self.challengeFile)
+						#Saving score state
+						#todo: implement. Move scores under the threaded server object.
+						#cPickle.dump(self.scores, scoreFile)
+		except Exception as e:
+			print ("Failed to save states.. %s " %(e,))
+			
+			
+	#State objects :)
+	challenges = {}
+	users = {}
 	
 	#To make the operations on add / get users / challenges atomic.
 	lock = threading.RLock()
 	userlock = threading.RLock()
+	stateLock = threading.RLock()
 	
+	userFile = open("user.state", "a+")
+	challengeFile = open("challenge.state", "a+")
+	scoreFile = open("score.state", "a+")
 	
 # Below are the control and running of the server.
 # It is an interactive prompt that controls it.
