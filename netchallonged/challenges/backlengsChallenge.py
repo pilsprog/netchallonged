@@ -43,7 +43,7 @@ class backlengsChallenge(Challenge):
 	def challenge(self):
 		""" Gets a random yomama joke from a big list. """
 		
-		joke = self.jokes[ int( round (random.random()*len(self.jokes) ))-1 ]
+		joke = self.jokes[ int( round (random.random()*len(self.jokes) ))-1 ].strip()
 		self.ChallengeGiven = joke
 		return self.ChallengeGiven
 		

@@ -8,6 +8,7 @@ import threading
 import math
 import copy 
 import os
+import pdb
 
 #Custom timer :P
 import timer
@@ -25,7 +26,7 @@ except:
 #Appending the challenge dir to the module loading path :)
 challengeDir = "challenges"
 sys.path.append(challengeDir) 
-
+DEBUG = 1
 
 #CONFIGZ
 #http://docs.python.org/library/socketserver.html
@@ -53,17 +54,7 @@ def load(chl):
 			print ("file: %s" % (byteCodeFile,))
 	return __import__(chl, fromlist=[])
 	
-def getChallonge():
-	""" Simple procedure to produce a random mathematical challenge"""
-	A=1337
-	B=13*3*7
-	operators = ["+", "-", "*", "/"]
-	#Selects random numbers and random operator
-	a = int( round( random.random() * A ))
-	b = int( round( random.random() * B ) )
-	oi = int( round( random.random() * ( len( operators ) - 1 ) ) )
-	#	Will yield something like: 13+37
-	return "%d%s%d" % (a, operators[oi], b)
+
 
 	
 
@@ -88,7 +79,7 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 			challenge = challengeHandler.challenge()
 			
 			
-			self.SaySomething(challenge + "\n")
+			self.SaySomething(challenge)
 
 			
 			#Ticking down
@@ -145,41 +136,52 @@ class ThreadedNetChallonged(SocketServer.ThreadingMixIn, SocketServer.TCPServer)
 	users = {}
 	def addChallenge(self, challenge, lvl):
 		""" For globally adding a new challenge to the server. lvl overwriting is done by adding a new challenge with an old lvl"""
-		with self.lock:
-			self.challenges[lvl] = challenge
+		try:
+			with self.lock:
+				self.challenges[lvl] = challenge
+		except Exception as e: print (e, "failed")
 		
 	def getChallenge(self, lvl):
 		""" Returns a Challenge object linked with a current lvl"""
 		#todo implement a mechanism for when there are no challenges left. 
 		#todo: wrap in try and handle error
-		with self.lock:
-			return self.challenges[lvl]
+		try: 
+			with self.lock:
+				return self.challenges[lvl]
+		except Exception as e: print (e, "failed")
 
 	def addUser(self, nickname):
 		""" Checks if the user is new, then creates it. If we have the user from before, this method does nothing.
 			Returns lvl of the user.
 		"""
-		with self.userlock:
-			#a.setdefault(k[, x]) does this... wher a is the self.users dictionary.
-			if not nickname in self.users:
-				self.users[nickname] = User(nickname)
-			return self.users[nickname].lvl
+		try:
+			with self.userlock:
+				#a.setdefault(k[, x]) does this... wher a is the self.users dictionary.
+				if not nickname in self.users:
+					self.users[nickname] = User(nickname)
+					return self.users[nickname].lvl
+		except Exception as e: print (e, "failed")
 		
 	def getUser(self, nickname):
 		"""Returns a User object wit nick: nickname"""
-		with self.userlock:
-			return self.users[nickname]
-	
+		try:
+			with self.userlock:
+				return self.users[nickname]
+		except Exception as e: print (e, "failed")
+			
 	def listUsers(self):
 		"""	Returns a copy of the current userlists  """
-		with self.userlock:
-			return copy.copy(self.users)
-	
+		try:
+			with self.userlock:
+				return copy.copy(self.users)
+		except Exception as e: print (e, "failed")
+		
 	def listChallenges(self):
 		"""	Returns a copy of the current userlists  """
-		with self.lock:
-			return copy.copy(self.challenges)
-	
+		try:
+			with self.lock:
+				return copy.copy(self.challenges)
+		except Exception as e: print (e, "failed")
 	
 	#To make the operations on add / get users / challenges atomic.
 	lock = threading.RLock()

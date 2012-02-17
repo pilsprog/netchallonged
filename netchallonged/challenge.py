@@ -55,6 +55,9 @@ class Challenge:
 				passed?: %s (answer: %s)
 
 			""" % (n,d,e,c,t,p,a))
+			if not p: 
+				raise Exception("Did not pass the evaluation: Answer: %s " % (a))
+			
 			print ("Passed :)")
 			return True
 		except Exception as en:
