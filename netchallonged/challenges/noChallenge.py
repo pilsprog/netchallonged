@@ -1,10 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-#	Network Math challenge - the very first challenge to ever enter the system.
-#	In fact, originally the system was built in order to host THIS challenge, and that one only.
-#	@author:	technocake
-#	10.02.2012
+#	noChallenge - dummy challenge called when user has reached the final level
+#	@author:	eoma
+#	17.02.2012
 #
 import sys
 import random
@@ -32,7 +31,7 @@ class noChallenge(Challenge):
 		return """No relevant challenge"""
 	
 	def challenge(self):
-		return "No need to compute something :) (Just submit empty/whatever string)"
+		return "You've reached the current latest level. There will be more in the future. No need to compute something :) (Just submit empty/whatever string)"
 		
 	def passed(self, answer):
 		if self.calledByValidAnswer:
