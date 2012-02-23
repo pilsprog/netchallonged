@@ -13,8 +13,3 @@ if __name__ == "__main__":
 	u = User("technocake")
 	u.lvl+=1
 	print(u.nick, u.lvl, u.score)
-	
-
-		
-		
-	
