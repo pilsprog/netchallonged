@@ -98,8 +98,7 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 			
 			#Did he make the challenge?
 			passed = challengeHandler.passed(nerdAttempt)
-			if passed:
-				#todo make this a method instead
+			if passed and t.timeleft():
 				server.levelUpUser(str(nickname))
 
 			
