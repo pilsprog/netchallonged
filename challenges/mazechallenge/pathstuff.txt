@@ -1,0 +1,50 @@
+	/***********************************************************************
+	*Generates a random map by digging between two random points a certain
+	*amount of times.
+	*@param minPaths the minimum amount of paths to dig
+	*@param maxPaths the maximum amount of paths to dig
+	***********************************************************************/
+	public void generate(int minPaths, int maxPaths){
+		fill();
+		
+		IntPoint firstPoint, secondPoint;
+		int tries = minPaths+rng.nextInt(minPaths, maxPaths); //Find how many paths we'll dig
+		
+		for (int i = 0; i < tries; i++){ //For the arbitrary amount of times
+			firstPoint = rng.nextPoint(upperLeftPoint, lowerRightPoint); //Find two random spots
+			secondPoint = rng.nextPoint(upperLeftPoint, lowerRightPoint);
+			snakeClear(firstPoint, secondPoint); //Snake between them!
+		} 
+		
+		buildBorders(); //And build some nice borders
+	}
+
+	/***********************************************************************
+	*Fills the entire map with wall (1)
+	***********************************************************************/
+	public void fill(){
+		fill(WALL);
+	}
+
+	/***********************************************************************
+	*Clears ground-tiles (0) between two positions in a winding fashion.
+	*Winds at most the default amount of times.
+	*@param startPosition the position to start from
+	*@param endPosition the position to build to
+	***********************************************************************/
+	public void snakeClear(IntPoint startPosition, IntPoint endPosition){
+		snakeClear(startPosition, endPosition, MAX_SNAKE_TRIES);
+	}
+	//buildBorders
+	/***********************************************************************
+	*Builds a border of solid, unbreakable wall (3) around the perimeter of
+	*the map.
+	***********************************************************************/
+	public void buildBorders(){
+		IntPoint upperLeft = new IntPoint(0, 0);
+		//IntPoint lowerLeft = new IntPoint(0, map.length);
+		//IntPoint upperRight = new IntPoint(map[0].length, 0);
+		IntPoint lowerRight = new IntPoint(width-1, height-1);
+		
+		build(upperLeft, lowerRight, SOLID);
+		
