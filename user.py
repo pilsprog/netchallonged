@@ -6,10 +6,18 @@ class User:
 		"""Initing on nickname"""
 		self.nick = nick
 		self.lvl = 0
-		self.score = 0
+		self.scores = []
 		
+	def addScore(self, lvl, score):
+		nextLvl = lvl + 1
+		if self.lvl < nextLvl:
+			self.scores += [[] for _ in range(nextLvl - self.lvl)]
+		self.lvl = max(nextLvl, self.lvl)
+		self.scores[lvl].append(score)
+
+
 		
 if __name__ == "__main__":
 	u = User("technocake")
-	u.lvl+=1
-	print(u.nick, u.lvl, u.score)
+	u.addScore(0, 22)
+	print(u.nick, u.lvl, u.scores)
