@@ -98,7 +98,7 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 			
 			#Did he make the challenge?
 			passed = challengeHandler.passed(nerdAttempt)
-			if passed and t.timeleft():
+			if passed and t.timeLeft():
 				server.levelUpUser(str(nickname))
 
 			
@@ -135,7 +135,7 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 	def ReadSomething(self):
 		""" Method to read from the socket.
 		The comp...  well, it decodes utf-8."""
-		return self.rfile.readline(int( math.pow(2,30) )).decode('UTF-8').strip()
+		return self.rfile.readline(65536).decode('UTF-8').strip()
 		
 
 
