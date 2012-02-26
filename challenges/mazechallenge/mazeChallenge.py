@@ -46,7 +46,10 @@ class mazeChallenge(  ):
 
 	def move(self, p, dir):
 		p1 = (p[0] + dir[0] , p[1] + dir[1])
-		return [p1[0] if p1[0] < self.w  and p1[0] >= 0 else p[0], p1[1] if p1[1] < self.h and p1[1] >= 0 else p[1]]
+		return [
+			p1[0] if p1[0] < self.w and p1[0] >= 0 else p[0],
+			p1[1] if p1[1] < self.h and p1[1] >= 0 else p[1]
+		]
 
 	def eat(self, p):
 		self.map[ p[0] ][ p[1] ] = ' '
