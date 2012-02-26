@@ -28,6 +28,12 @@ class mazeChallenge(  ):
 		self.w, self.h = width, height
 	
 
+	def getHeight(self):|
+		return self.h
+
+	def getWidth(self):
+		return self.w
+
 	def represent(self):
 		"""	Gives a textual representation of the maze in its current state	 """
 		out = ""
@@ -71,5 +77,5 @@ if __name__ == "__main__":
 	
 	maze = mazeChallenge()
 	maze.generateMaze(50,24)
-	maze.snake([0,0], [49,23])
+	maze.snake([0,0], [maze.getWidth() - 1, maze.getHeight() - 1])
 	print(maze.represent())
