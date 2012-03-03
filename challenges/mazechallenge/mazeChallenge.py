@@ -24,11 +24,19 @@ class mazeChallenge(  ):
 
 	def generateMaze(self, width, height):
 		""" Generates a WxH grid filling it with obstacles """
-		self.map = [[self.obstacle]*height for x in xrange(width)]
 		self.w, self.h = width, height
+
+		self.map = [[self.obstacle]*height for x in xrange(width)] #generating maze and filling it with obstacles
+		
+		for turn in range(1):
+			p0 = [random.randrange(self.w), random.randrange(self.h)]
+			p1 = [random.randrange(self.w), random.randrange(self.h)]
+			self.snake(p0, p1)
+
+
 	
 
-	def getHeight(self):|
+	def getHeight(self):
 		return self.h
 
 	def getWidth(self):
@@ -44,8 +52,8 @@ class mazeChallenge(  ):
 		return out
 
 
-	def move(self, p, dir):
-		p1 = (p[0] + dir[0] , p[1] + dir[1])
+	def move(self, p, direction):
+		p1 = (p[0] + direction[0] , p[1] + direction[1])
 		return [
 			p1[0] if p1[0] < self.w and p1[0] >= 0 else p[0],
 			p1[1] if p1[1] < self.h and p1[1] >= 0 else p[1]
@@ -56,20 +64,16 @@ class mazeChallenge(  ):
 
 	def snake(self, p0, p1):
 		""" Simulates a snake eating itself in a random path from point 0 to point 1 """
-		#Direction vectors
-		dirs = {	'up'	: [0, -1], 
-					'down'	: [0, 1], 
-					'right'	: [1, 0], 
-					'left'	: [-1, 0]
-				}
+
 		delta_x, delta_y = p1[0]-p0[0], p1[1]-p0[1]
 		u = [delta_x/abs(delta_x), delta_y/abs(delta_y)] #unit vectors.
-		dirs = [[0, u[0]], [u[1], 0]] #direction vector set. Only concisting of the two vectors pointing to the point p1
-
+		dirs = [[0, u[1]], [u[0], 0]] #direction vector set. Only concisting of the two vectors pointing to the point p1
+		print ("start: " + str(p0) + "stop: " + str(p1))
+		print(dirs)
 		p=p0
 		while (p != p1):	
-			dir = dirs[random.randrange(len(dirs))]
-			p=self.move(p, dir)
+			direction = dirs[random.randrange(len(dirs))]
+			p=self.move(p, direction)
 			self.eat(p)
 
 
