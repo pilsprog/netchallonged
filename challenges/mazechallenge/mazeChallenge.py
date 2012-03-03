@@ -36,6 +36,12 @@ class mazeChallenge(  ):
 
 	
 
+	def getHeight(self):
+		return self.h
+
+	def getWidth(self):
+		return self.w
+
 	def represent(self):
 		"""	Gives a textual representation of the maze in its current state	 """
 		out = ""
@@ -48,7 +54,10 @@ class mazeChallenge(  ):
 
 	def move(self, p, direction):
 		p1 = (p[0] + direction[0] , p[1] + direction[1])
-		return [p1[0] if p1[0] < self.w  and p1[0] >= 0 else p[0], p1[1] if p1[1] < self.h and p1[1] >= 0 else p[1]]
+		return [
+			p1[0] if p1[0] < self.w and p1[0] >= 0 else p[0],
+			p1[1] if p1[1] < self.h and p1[1] >= 0 else p[1]
+		]
 
 	def eat(self, p):
 		self.map[ p[0] ][ p[1] ] = ' '
@@ -75,5 +84,5 @@ if __name__ == "__main__":
 	
 	maze = mazeChallenge()
 	maze.generateMaze(50,24)
-	#maze.snake([0,0], [49,23])
+	maze.snake([0,0], [maze.getWidth() - 1, maze.getHeight() - 1])
 	print(maze.represent())
