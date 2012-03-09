@@ -11,7 +11,10 @@ import os
 from threading import Lock
 
 class Scores:
-	""" Scores is the datastructure holding the scores for the challonge inter-threadedly!"""
+	"""
+	Scores is the datastructure holding the scores for the challonge
+	inter-threadedly!
+	"""
 	scores = {}
 	wins = 0
 	losses = 0
@@ -19,7 +22,7 @@ class Scores:
 	lock = Lock()
 
 	def addResult(self, id, result):
-		"""docstring for addResult: (id[ip], result[bool]) --> scores"""
+		"""(id[ip], result[bool]) --> scores"""
 		try:
 			self.lock.acquire()
 			

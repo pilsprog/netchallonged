@@ -15,9 +15,7 @@ class User:
 		self.lvl = max(nextLvl, self.lvl)
 		self.scores[lvl].append(score)
 
-
-		
 if __name__ == "__main__":
 	u = User("technocake")
-	u.addScore(0, 22)
+	u.addScore(0, 0)
 	print(u.nick, u.lvl, u.scores)

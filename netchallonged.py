@@ -62,12 +62,11 @@ def load(chl):
 
 class NerdHandler(SocketServer.StreamRequestHandler):
 	"""
-		The class invoked when dealing with a nerd.
-		
-		Each client connecting will get a separate thread running handling them. (this class)
-		It is here the communication happens between the server and client. It will ask the server main thread for
-		the current challenge active for the user. (@see ThreadedNetChallonged.getChallenge() )Then serve it. 
-	
+	The class invoked when dealing with a nerd.
+
+	Each client connecting will get a separate thread running handling them. (this class)
+	It is here the communication happens between the server and client. It will ask the server main thread for
+	the current challenge active for the user. (@see ThreadedNetChallonged.getChallenge() )Then serve it. 
 	"""
 	def handle(self):
 		cur_thread = threading.currentThread()
@@ -128,13 +127,16 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 			print ( "%s Nerd Gones " % self.client_address[0] )
 	
 	def SaySomething(self, something):
-		""" Method for writing to the socket. 
-		Python 3 compability issue handling :) Str is no longar  string or something"""
+		"""
+		Method for writing to the socket. Python 3 compability issue handling :)
+		Str is no longar  string or something
+		"""
 		self.wfile.write((something).encode('UTF-8')+'\n')
 	
 	def ReadSomething(self):
-		""" Method to read from the socket.
-		The comp...  well, it decodes utf-8."""
+		"""
+		Method to read from the socket.  The comp...  well, it decodes utf-8.
+		"""
 		return self.rfile.readline(65536).decode('UTF-8').strip()
 		
 
@@ -143,14 +145,19 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 class ThreadedNetChallonged(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 	
 	def addChallenge(self, challenge, lvl):
-		""" For globally adding a new challenge to the server. lvl overwriting is done by adding a new challenge with an old lvl"""
+		"""
+		For globally adding a new challenge to the server. lvl overwriting is
+		done by adding a new challenge with an old lvl
+		"""
 		try:
 			with self.lock:
 				self.challenges[lvl] = challenge
 		except Exception as e: print (e, "failed")
 		
 	def getChallenge(self, lvl):
-		""" Returns a Challenge object linked with a current lvl"""
+		"""
+		Returns a Challenge object linked with a current lvl
+		"""
 		#todo implement a mechanism for when there are no challenges left. 
 		try: 
 			with self.lock:
@@ -158,8 +165,9 @@ class ThreadedNetChallonged(SocketServer.ThreadingMixIn, SocketServer.TCPServer)
 		except Exception as e: print (e, "failed")
 
 	def addUser(self, nickname):
-		""" Checks if the user is new, then creates it. If we have the user from before, this method does nothing.
-			Returns lvl of the user.
+		"""
+		Checks if the user is new, then creates it. If we have the user from
+		before, this method does nothing. Returns lvl of the user.
 		"""
 		try:
 			with self.userlock:
@@ -172,9 +180,12 @@ class ThreadedNetChallonged(SocketServer.ThreadingMixIn, SocketServer.TCPServer)
 		
 		
 	def levelUpUser(self, nickname):
-		"""	 Leveling up  a user. If the last level is reached, it will still update level, but there will be no challenges to let it further exceed.
-			 getChallonge should take account for handling lvls which does not yet change
-		 """
+		"""
+		Leveling up a user. If the last level is reached, it will still update
+		level, but there will be no challenges to let it further exceed.
+		getChallonge should take account for handling lvls which does not yet
+		change
+		"""
 		try:
 			with self.userlock:
 				#a.setdefault(k[, x]) does this... wher a is the self.users dictionary.
@@ -192,14 +203,14 @@ class ThreadedNetChallonged(SocketServer.ThreadingMixIn, SocketServer.TCPServer)
 		except Exception as e: print (e, "failed")
 			
 	def listUsers(self):
-		"""	Returns a copy of the current userlists  """
+		"""	Returns a copy of the current userlists """
 		try:
 			with self.userlock:
 				return copy.copy(self.users)
 		except Exception as e: print (e, "failed")
 		
 	def listChallenges(self):
-		"""	Returns a copy of the current userlists  """
+		"""	Returns a copy of the current userlists """
 		try:
 			with self.lock:
 				return copy.copy(self.challenges)
@@ -207,10 +218,11 @@ class ThreadedNetChallonged(SocketServer.ThreadingMixIn, SocketServer.TCPServer)
 			print ("List challenges erroer %s " %(e,))
 				
 	def saveServerState(self):
-		"""	Function to save the state of the server. 
-			Users and their levels
-			Challenges and their levels
-			Scores [not implemented]
+		"""
+		Function to save the state of the server. 
+		- Users and their levels
+		- Challenges and their levels
+		- Scores [not implemented]
 		"""
 		if DEBUG: pdb.set_trace()
 		try:
@@ -239,10 +251,11 @@ class ThreadedNetChallonged(SocketServer.ThreadingMixIn, SocketServer.TCPServer)
 	
 	
 	def loadServerState(self):
-		"""	Function to load a earlier state of the server. 
-			Users and their levels
-			Challenges and their levels
-			Scores [not implemented]
+		"""
+		Function to load a earlier state of the server. 
+		- Users and their levels
+		- Challenges and their levels
+		- Scores [not implemented]
 		"""
 		if DEBUG: pdb.set_trace()
 		try:
@@ -322,7 +335,10 @@ if __name__ == "__main__":
 				#	
 				
 				if "state" in cmd:
-					""" Overwriting the load challenge command to act for load state from state files"""
+					"""
+					Overwriting the load challenge command to act for load state
+					from state files
+					"""
 					print ("Loading server states")
 					try:
 						server.loadServerState()
