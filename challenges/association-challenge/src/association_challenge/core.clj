@@ -22,28 +22,27 @@
                             (rand-nth three))
                       reciept))))))
 
-(defn apriori [products reciepts support]
-  (letfn [(f [prods]
-            (for [product prods
+(defn apriori [products transactions support]
+  (letfn [(f [products]
+            (for [product products
                   :when (< support
-                           (count (filter #(set/superset? % product)
-                                                  reciepts)))]
-              product))]
-    (loop [candidates (map hash-set products)
-           rules []]
-      (if (empty? candidates)
-        rules
-        (let [cs (f candidates)
-              rs (f (distinct
-                     (mapcat #(for [c (into [] (reduce set/union cs))
-                                    :when (not (contains? % c))]
-                                (conj % c))
-                             cs)))]
-          (recur rs
-                 (concat rules rs)))))))
+                           (count (filter (partial set/subset? product)
+                                          transactions)))]
+              product))
+          (g [cs]
+            (f (distinct
+                (mapcat #(for [c (reduce set/union cs)
+                               :when (not (contains? % c))]
+                           (conj % c))
+                        cs))))]
+    (apply concat
+           (take-while (complement empty?)
+                 (reductions (fn [l _] ((comp g f) l))
+                             ((comp g f map) hash-set products)
+                             (range))))))
 
 (defn -main []
-  (let [three (repeatedly 3 #(rand-nth bPRODUCTS))]
+  (let [three (repeatedly 3 #(rand-nth PRODUCTS))]
     (println three)
     (doseq [transaction (create-association-data three PRODUCTS)]
       (println (into '()  transaction)))))
