@@ -23,7 +23,7 @@ class associationChallenge(Challenge):
     def __init__(self):
         """Starting clojure code which generates the data
         and makes the answer"""
-        p = subprocess.Popen('lein run', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        p = subprocess.Popen('java -jar association-challenge-0.0.1-standalone.jar', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         self.answer = p.stdout.readline().strip()
         self.ChallengeGiven = p.read() 
         
