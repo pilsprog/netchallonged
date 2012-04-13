@@ -77,11 +77,18 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 
 		print ("%s Joined. Will he or she manage? The clock is ticking." %(ip))
 		try:
-		
-			#Limit of 1 sec
+
+			command = self.ReadSomething().split(' ')
+
+			if len(command) > 1:
+				# Got nick and trailing command...
+				self.runCommand(command[0], command[1:])
+				return
+
+			# Normal procedure
 			
 			# Getting the nickname the nerd is using 
-			nickname=self.ReadSomething()
+			nickname = command[0]
 			print ("******************************** Nerd: %s " % (nickname,))
 			lvl = server.addUser(str(nickname))
 			# Making a challenge for him /her
@@ -142,7 +149,11 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 		"""
 		return self.rfile.readline(65536).decode('UTF-8').strip()
 		
-
+	def runCommand(self, nick, params):
+		# Allows users to run commands
+		if params[0] == 'stats':
+			user = server.getUser(nick)
+			self.SaySomething(str(user.lvl))
 
 
 class ThreadedNetChallonged(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
