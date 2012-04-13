@@ -1,4 +1,5 @@
 (ns association-challenge.core
+  (:gen-class) ;;So that the class is there for the jar
   (:require [clojure.set :as set]))
 
 (def PRODUCTS  '(milk bread chocolate beer soda flour diapers eggs coffee
