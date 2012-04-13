@@ -73,7 +73,9 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 	"""
 	def handle(self):
 		cur_thread = threading.currentThread()
-		print ("%s Joined. Will he or she manage? The clock is ticking." %(self.client_address[0]))
+		ip = self.client_address[0]
+
+		print ("%s Joined. Will he or she manage? The clock is ticking." %(ip))
 		try:
 		
 			#Limit of 1 sec
@@ -112,17 +114,15 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 			
 			answer = str(challengeHandler.validAnswer())
 			
+			#Logging the query
+			server.log(ip, nickname, challengeHandler.name(), lvl, "Passed" if passed else "Failed") 
+
 			# http://effbot.org/zone/thread-synchronization.htm
 			#Grading him
 			
 			scores.addResult("%s [%s]" %(nickname, self.client_address[0]), passed)
 			
-			print ( "The nerd gave an attempt to answer the challonge. \n \
-			\t Challenge: \t %s \n \
-			. He thought it to be:  %s \n \
-			It should be: %s\n \
-			, and he is  %s !!!!" % 
-				(challenge, nerdAttempt, answer, reply) )
+			
 	
 		except Exception as e:
 			print ( "Man quit! %s" %(e,))
@@ -146,6 +146,19 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 
 
 class ThreadedNetChallonged(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
+
+	def log(self, ip, nick, chlName,lvl, status):
+		""" Logging to the server"""
+		print ( 
+			"%s (%s) : attempting %s (lvl %s)  status: %s" 
+			%( ip, nick, chlName, lvl, status)  
+		) 
+		# print ( "The nerd gave an attempt to answer the challonge. \n \
+		# 	\t Challenge: \t %s \n \
+		# 	. He thought it to be:  %s \n \
+		# 	It should be: %s\n \
+		# 	, and he is  %s !!!!" % 
+		# 		(challenge, nerdAttempt, answer, reply) )
 	
 	def addChallenge(self, challenge, lvl):
 		"""
