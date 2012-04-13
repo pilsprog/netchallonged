@@ -12,10 +12,11 @@ import sys
 import subprocess
 
 #to be able to load Challenge
-sys.path.append("../");
+sys.path.append("../../");
 
 from challenge import *
 
+import os
 
 class associationChallenge(Challenge):
     """The association rules learning challenge"""
@@ -23,9 +24,10 @@ class associationChallenge(Challenge):
     def __init__(self):
         """Starting clojure code which generates the data
         and makes the answer"""
-        p = subprocess.Popen('java -jar association-challenge-0.0.1-standalone.jar', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        thisdir = os.path.dirname(os.path.realpath(__file__))
+        p = subprocess.Popen('java -jar %s/association-challenge-0.0.1-standalone.jar' % (thisdir,) , shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         self.answer = p.stdout.readline().strip()
-        self.ChallengeGiven = p.read() 
+        self.ChallengeGiven = p.stdout.read() 
         
         
         
@@ -60,15 +62,14 @@ class associationChallenge(Challenge):
     def timeLimit(self):
         return 1000*60*30
     
-    if __name__ == "__main__":
-        """ Testing"""
-        print ("Testing the associationChallenge")
-        import pdb #debug  see http://pythonconquerstheuniverse.wordpress.com/2009/09/10/debugging-in-python/
-        pdb.set_trace()
+if __name__ == "__main__":
+    """ Testing"""
+    print ("Testing the associationChallenge")
+    import pdb #debug  see http://pythonconquerstheuniverse.wordpress.com/2009/09/10/debugging-in-python/
+    pdb.set_trace()
         
-        backlengsChallenge.challengeDir="."
-        o = associationChallenge()
+    o = associationChallenge()
         
-	#New testing method
-        Challenge.test(o)
+    #New testing method
+    Challenge.test(o)
         
