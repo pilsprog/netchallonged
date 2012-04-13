@@ -44,9 +44,10 @@ HOST, PORT = '', 1337
 scores = scores.Scores()
 
 def load(chl):
-	if os.path.isdir(chl): return load("%s.%s" % ((chl, chl))
-
 	""" Dynamically loading modules. Returns the module loaded"""
+	
+	if os.path.isdir(chl): 	return load("%s.%s" % ((chl, chl)))
+	
 	byteCodeFile = challenge.Challenge.challengeDir + "/" + chl + ".pyc"
 	if (os.path.exists(byteCodeFile)):
 		print ( "python bytecode exists. Deleting it " )
