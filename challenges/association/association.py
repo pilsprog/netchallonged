@@ -27,7 +27,7 @@ class associationChallenge(Challenge):
         thisdir = os.path.dirname(os.path.realpath(__file__))
         p = subprocess.Popen('java -jar %s/association-challenge-0.0.1-standalone.jar' % (thisdir,) , shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         self.answer = p.stdout.readline().strip()
-        self.ChallengeGiven = p.stdout.read() 
+        self.ChallengeGiven = p.stdout.read()
         
         
         
@@ -54,10 +54,10 @@ class associationChallenge(Challenge):
         return self.ChallengeGiven
     
     def passed(self, answer):
-        return answer.strip() == self.answer;
+        return answer.strip() == self.answer
     
     def validAnswer(self):
-        return """"f.ex.: (cheese soda tomatoes)"""
+        return self.answer
     
     def timeLimit(self):
         return 1000*60*30
