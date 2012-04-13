@@ -158,6 +158,8 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 
 class ThreadedNetChallonged(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 
+	allow_reuse_address = True #SO_REUSEADDR so we can reboot the server immidiently
+
 	def log(self, ip, nick, chlName,lvl, status):
 		""" Logging to the server"""
 		print ( 
