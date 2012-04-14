@@ -348,7 +348,7 @@ if __name__ == "__main__":
 				
 				#Lists all cmds
 				if len(args) == 1:
-					for k in ["load", "scores", "quit", "help", "users"]:
+					for k in ["load", "scores", "quit", "help", "users", "load state", "save state", "challenges"]:
 						print (k)
 					print ("Usage help [<command>]  \n if no command given, it lists all commands")
 					continue
