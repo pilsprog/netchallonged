@@ -152,8 +152,44 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 	def runCommand(self, nick, params):
 		# Allows users to run commands
 		if params[0] == 'stats':
-			user = server.getUser(nick)
-			self.SaySomething(str(user.lvl))
+			self.stats(nick)
+
+		elif params[0] == 'list':
+			self.listChallenges()
+
+		elif params[0] == 'desc' and len(params) > 1:
+			# Not sure about the name of this command
+			self.challengeDescription(params[1])
+
+	def listChallenges(self):
+		challengeDict = server.listChallenges()
+		output = ""
+
+		for lvl, challenge in challengeDict.iteritems():
+			output += "%s: %s\n" % (lvl, challenge.name())
+
+		output += "\nTry to send\n"
+		output += "\t<nick> desc <lvl>\n"
+		output += "to get a description of a challenge\n"
+
+		self.SaySomething(output)
+
+	def stats(self, nick):
+		user = server.getUser(nick)
+		self.SaySomething("Current level: %s\n" % (user.lvl,))
+
+	def challengeDescription(self, lvl):
+		challengeDict = server.listChallenges()
+
+		if lvl in challengeDict:
+			challenge = challengeDict[lvl]
+
+			self.SaySomething(
+				"Name: %(name)s\nDescription: %(desc)s\nExample: %(example)s\n" %
+				(challenge.name(), challenge.desc(), challenge.example())
+			)
+		else:
+			self.SaySomething("Challenge does not exist :(")
 
 
 class ThreadedNetChallonged(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
