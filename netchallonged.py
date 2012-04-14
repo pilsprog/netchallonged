@@ -341,8 +341,8 @@ if __name__ == "__main__":
 			cmd = prompt("Code::Phun->NetChallongeD>> ")
 			if "quit" in cmd:
 				shutUp()
-				
-				
+
+
 			if "help" in cmd:
 				args = cmd.split(" ")
 				
@@ -352,17 +352,16 @@ if __name__ == "__main__":
 						print (k)
 					print ("Usage help [<command>]  \n if no command given, it lists all commands")
 					continue
-				
+
 				if "load" in args[1]:
 					print("Usage: load <challenge-name> <lvl>")
-				
-				
+
 			elif "load" in cmd:
-				
+
 				#
 				#		LOAD SERVER STATE
 				#	
-				
+
 				if "state" in cmd:
 					"""
 					Overwriting the load challenge command to act for load state
@@ -375,41 +374,41 @@ if __name__ == "__main__":
 						print (" Failed to load states: %s " %(e,))
 
 					continue #skipping over the next steps
-				
+
 				#
 				#		LOAD Challenge
 				#
-				
+
 				""" Loads a new challenge module """
 				try:
 					(name, lvl) = cmd.split(" ")[1:3]
 					print ("Loading %s at lvl %s" %(name, lvl))
-					
+
 					mod = load(name)
 					exec ("challengeObj = mod.%s()" %(name, )) #dirty hack?
-					
+
 					#Testing the loaded module
 					if not challenge.Challenge.test(challengeObj):
 						print ("Not loaded")
 						continue
-					
+
 					#loading it into the server
 					server.addChallenge(challengeObj, lvl)
-					
+
 					print ("loaded")
-					
+
 				except Exception as e:
 					print ("Exception %s" %(e))
 					print("Usage: load <challenge-name> <lvl>")
-					
-					
+
+
 			elif "scores" in cmd:
 				print ( scores.getScores() )
-			
+
 			# 
 			#		Save Server States
 			#	
-				
+
 			elif "save" in cmd:
 				if "state" in cmd:
 					print ("Saving states")
@@ -420,19 +419,19 @@ if __name__ == "__main__":
 					#Skipping the next sub comands		
 					continue
 
-					
-				
-			
+
+
+
 			elif "users" in cmd:
 				print("%s")
 				for k,v in server.listUsers().items():
 					print ("User: %s has gone to lvl: %s" % (k, v.lvl))
-					
+
 			elif "challenges" in cmd:
 				print (" Listing challenges ")
 				for k,v in server.listChallenges().items():
 					print ("Lvl: %s \t Challenge:  %s \n\tExample: %s \n\n" % (k, v.name(), v.example()))
-					
+
 	except KeyboardInterrupt:
 		print ( "Shuting down, erh up... ")
 	finally:
