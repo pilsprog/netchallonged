@@ -73,13 +73,22 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 	"""
 	def handle(self):
 		cur_thread = threading.currentThread()
-		print ("%s Joined. Will he or she manage? The clock is ticking." %(self.client_address[0]))
+		ip = self.client_address[0]
+
+		print ("%s Joined. Will he or she manage? The clock is ticking." %(ip))
 		try:
-		
-			#Limit of 1 sec
+
+			command = self.ReadSomething().split(' ')
+
+			if len(command) > 1:
+				# Got nick and trailing command...
+				self.runCommand(command[0], command[1:])
+				return
+
+			# Normal procedure
 			
 			# Getting the nickname the nerd is using 
-			nickname=self.ReadSomething()
+			nickname = command[0]
 			print ("******************************** Nerd: %s " % (nickname,))
 			lvl = server.addUser(str(nickname))
 			# Making a challenge for him /her
@@ -112,17 +121,15 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 			
 			answer = str(challengeHandler.validAnswer())
 			
+			#Logging the query
+			server.log(ip, nickname, challengeHandler.name(), lvl, "Passed" if passed else "Failed") 
+
 			# http://effbot.org/zone/thread-synchronization.htm
 			#Grading him
 			
 			scores.addResult("%s [%s]" %(nickname, self.client_address[0]), passed)
 			
-			print ( "The nerd gave an attempt to answer the challonge. \n \
-			\t Challenge: \t %s \n \
-			. He thought it to be:  %s \n \
-			It should be: %s\n \
-			, and he is  %s !!!!" % 
-				(challenge, nerdAttempt, answer, reply) )
+			
 	
 		except Exception as e:
 			print ( "Man quit! %s" %(e,))
@@ -142,10 +149,65 @@ class NerdHandler(SocketServer.StreamRequestHandler):
 		"""
 		return self.rfile.readline(65536).decode('UTF-8').strip()
 		
+	def runCommand(self, nick, params):
+		# Allows users to run commands
+		if params[0] == 'stats':
+			self.stats(nick)
 
+		elif params[0] == 'list':
+			self.listChallenges()
+
+		elif params[0] == 'desc' and len(params) > 1:
+			# Not sure about the name of this command
+			self.challengeDescription(params[1])
+
+	def listChallenges(self):
+		challengeDict = server.listChallenges()
+		output = ""
+
+		for lvl, challenge in challengeDict.iteritems():
+			output += "%s: %s\n" % (lvl, challenge.name())
+
+		output += "\nTry to send\n"
+		output += "\t<nick> desc <lvl>\n"
+		output += "to get a description of a challenge\n"
+
+		self.SaySomething(output)
+
+	def stats(self, nick):
+		user = server.getUser(nick)
+		self.SaySomething("Current level: %s\n" % (user.lvl,))
+
+	def challengeDescription(self, lvl):
+		challengeDict = server.listChallenges()
+
+		if lvl in challengeDict:
+			challenge = challengeDict[lvl]
+
+			self.SaySomething(
+				"Name: %(name)s\nDescription: %(desc)s\nExample: %(example)s\n" %
+				(challenge.name(), challenge.desc(), challenge.example())
+			)
+		else:
+			self.SaySomething("Challenge does not exist :(")
 
 
 class ThreadedNetChallonged(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
+
+	allow_reuse_address = True #SO_REUSEADDR so we can reboot the server immidiently
+
+	def log(self, ip, nick, chlName,lvl, status):
+		""" Logging to the server"""
+		print ( 
+			"%s (%s) : attempting %s (lvl %s)  status: %s" 
+			%( ip, nick, chlName, lvl, status)  
+		) 
+		# print ( "The nerd gave an attempt to answer the challonge. \n \
+		# 	\t Challenge: \t %s \n \
+		# 	. He thought it to be:  %s \n \
+		# 	It should be: %s\n \
+		# 	, and he is  %s !!!!" % 
+		# 		(challenge, nerdAttempt, answer, reply) )
 	
 	def addChallenge(self, challenge, lvl):
 		"""
@@ -315,28 +377,27 @@ if __name__ == "__main__":
 			cmd = prompt("Code::Phun->NetChallongeD>> ")
 			if "quit" in cmd:
 				shutUp()
-				
-				
+
+
 			if "help" in cmd:
 				args = cmd.split(" ")
 				
 				#Lists all cmds
 				if len(args) == 1:
-					for k in ["load", "scores", "quit", "help", "users"]:
+					for k in ["load", "scores", "quit", "help", "users", "load state", "save state", "challenges"]:
 						print (k)
 					print ("Usage help [<command>]  \n if no command given, it lists all commands")
 					continue
-				
+
 				if "load" in args[1]:
 					print("Usage: load <challenge-name> <lvl>")
-				
-				
+
 			elif "load" in cmd:
-				
+
 				#
 				#		LOAD SERVER STATE
 				#	
-				
+
 				if "state" in cmd:
 					"""
 					Overwriting the load challenge command to act for load state
@@ -349,41 +410,41 @@ if __name__ == "__main__":
 						print (" Failed to load states: %s " %(e,))
 
 					continue #skipping over the next steps
-				
+
 				#
 				#		LOAD Challenge
 				#
-				
+
 				""" Loads a new challenge module """
 				try:
 					(name, lvl) = cmd.split(" ")[1:3]
 					print ("Loading %s at lvl %s" %(name, lvl))
-					
+
 					mod = load(name)
 					exec ("challengeObj = mod.%s()" %(name, )) #dirty hack?
-					
+
 					#Testing the loaded module
 					if not challenge.Challenge.test(challengeObj):
 						print ("Not loaded")
 						continue
-					
+
 					#loading it into the server
 					server.addChallenge(challengeObj, lvl)
-					
+
 					print ("loaded")
-					
+
 				except Exception as e:
 					print ("Exception %s" %(e))
 					print("Usage: load <challenge-name> <lvl>")
-					
-					
+
+
 			elif "scores" in cmd:
 				print ( scores.getScores() )
-			
+
 			# 
 			#		Save Server States
 			#	
-				
+
 			elif "save" in cmd:
 				if "state" in cmd:
 					print ("Saving states")
@@ -394,19 +455,19 @@ if __name__ == "__main__":
 					#Skipping the next sub comands		
 					continue
 
-					
-				
-			
+
+
+
 			elif "users" in cmd:
 				print("%s")
 				for k,v in server.listUsers().items():
 					print ("User: %s has gone to lvl: %s" % (k, v.lvl))
-					
+
 			elif "challenges" in cmd:
 				print (" Listing challenges ")
 				for k,v in server.listChallenges().items():
 					print ("Lvl: %s \t Challenge:  %s \n\tExample: %s \n\n" % (k, v.name(), v.example()))
-					
+
 	except KeyboardInterrupt:
 		print ( "Shuting down, erh up... ")
 	finally:
